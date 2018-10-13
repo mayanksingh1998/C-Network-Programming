@@ -1,33 +1,36 @@
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
-
-int main(int argc, char **argv)
+#include"netinet/in.h"
+#include"sys/socket.h"#include"stdio.h"
+#include"string.h"
+#include"time.h"
+main( )
 {
-    int listenfd, connfd;
-	int port = atoi(argv[1]);
- 
-    struct sockaddr_in servaddr;
-    char buff[1000];
-    time_t ticks;
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(port);
-
-    bind(listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
-
-    listen(listenfd, 8);
-    for (;;) {
-		connfd = accept(listenfd, (struct sockaddr *) NULL, NULL);
-
-		ticks = time(NULL);
-		snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));
-		write(connfd, buff, strlen(buff));
-		close(connfd);
-    }
+struct sockaddr_in sa;
+struct sockaddr_in cli;int sockfd,conntfd;int len,ch;char str[100];
+time_t tick;
+sockfd=socket(AF_INET,SOCK_STREAM,0);
+if(sockfd<0)
+{
+printf("error in socket\n");
+exit(0);
+}
+else printf("Socket opened");
+bzero(&sa,sizeof(sa));
+sa.sin_port=htons(5600);
+sa.sin_addr.s_addr=htonl(0);
+if(bind(sockfd,(struct sockaddr*)&sa,sizeof(sa))<0)
+{
+printf("Error in binding\n");
+}
+else
+printf("Binded Successfully");
+listen(sockfd,50);
+for(;;)
+{
+len=sizeof(ch);
+conntfd=accept(sockfd,(struct sockaddr*)&cli,&len);
+printf("Accepted");
+tick=time(NULL);
+snprintf(str,sizeof(str),"%s",ctime(&tick));
+printf("%s",str);write(conntfd,str,100);
+}
 }
